@@ -14,7 +14,8 @@ import {
   Keyboard
 } from 'react-native';
 import Style from './style';
-import Moment from 'moment';
+// import moment from 'moment';
+import moment from 'moment-timezone';
 
 const FORMATS = {
   'date': 'YYYY-MM-DD',
@@ -144,7 +145,7 @@ class DatePicker extends Component {
       return date;
     }
 
-    return Moment(date, format).toDate();
+    return moment(date, format).toDate();
   }
 
   getDateStr(date = this.props.date) {
@@ -157,8 +158,8 @@ class DatePicker extends Component {
     if (typeof this.props.getDateStr === 'function') {
       return this.props.getDateStr(dateInstance);
     }
-
-    return Moment(dateInstance).format(format);
+    return moment(dateInstance).tz(moment.tz.guess()).format(format)
+    // return moment(dateInstance).format(format);
   }
 
   datePicked() {
@@ -175,6 +176,12 @@ class DatePicker extends Component {
         <Text allowFontScaling={allowFontScaling} style={[Style.placeholderText, customStyles.placeholderText]}>
           {placeholder}
         </Text>
+      );
+    } else if (typeof date === 'string') {
+      return (
+        <Text allowFontScaling={allowFontScaling} style={[Style.dateText, customStyles.dateText]}>
+        {date}
+      </Text>
       );
     }
     return (
@@ -211,7 +218,7 @@ class DatePicker extends Component {
   onTimePicked({action, hour, minute}) {
     if (action !== DatePickerAndroid.dismissedAction) {
       this.setState({
-        date: Moment().hour(hour).minute(minute).toDate()
+        date: moment().hour(hour).minute(minute).toDate()
       });
       this.datePicked();
     } else {
@@ -223,11 +230,11 @@ class DatePicker extends Component {
     const {mode, androidMode, format = FORMATS[mode], is24Hour = !format.match(/h|a/)} = this.props;
 
     if (action !== DatePickerAndroid.dismissedAction) {
-      let timeMoment = Moment(this.state.date);
+      let timemoment = moment(this.state.date);
 
       TimePickerAndroid.open({
-        hour: timeMoment.hour(),
-        minute: timeMoment.minutes(),
+        hour: timemoment.hour(),
+        minute: timemoment.minutes(),
         is24Hour: is24Hour,
         mode: androidMode
       }).then(this.onDatetimeTimePicked.bind(this, year, month, day));
@@ -276,11 +283,11 @@ class DatePicker extends Component {
       } else if (mode === 'time') {
         // 选时间
 
-        let timeMoment = Moment(this.state.date);
+        let timemoment = moment(this.state.date);
 
         TimePickerAndroid.open({
-          hour: timeMoment.hour(),
-          minute: timeMoment.minutes(),
+          hour: timemoment.hour(),
+          minute: timemoment.minutes(),
           is24Hour: is24Hour,
           mode: androidMode
         }).then(this.onTimePicked);
